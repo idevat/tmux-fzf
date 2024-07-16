@@ -6,7 +6,7 @@ source "$CURRENT_DIR/.envs"
 if [[ -z "$TMUX_FZF_SESSION_FORMAT" ]]; then
     sessions=$(tmux list-sessions)
 else
-    sessions=$(tmux list-sessions -F "#S: $TMUX_FZF_SESSION_FORMAT")
+    sessions=$(tmux list-sessions -F "$TMUX_FZF_SESSION_FORMAT")
 fi
 
 if [[ -z "$TMUX_FZF_SWITCH_CURRENT" ]]; then
