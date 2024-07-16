@@ -29,7 +29,7 @@ if [[ "$action" != "detach" ]]; then
         FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select target session.'"
     fi
     if [[ "$action" == "switch" ]]; then
-        target_origin=$(printf "%s\n[cancel]" "$sessions" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS $TMUX_FZF_PREVIEW_OPTIONS")
+        target_origin=$(printf "%s" "$sessions" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS $TMUX_FZF_PREVIEW_OPTIONS")
     elif [[ "$action" != "new" ]]; then
         target_origin=$(printf "[current]\n%s\n[cancel]" "$sessions" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS $TMUX_FZF_PREVIEW_OPTIONS")
         target_origin=$(echo "$target_origin" | sed -E "s/\[current\]/$current_session:/")

@@ -58,7 +58,7 @@ else
         if [[ -z "$TMUX_FZF_SWITCH_CURRENT" ]]; then
             windows=$(echo "$windows" | grep -v "^$current_window")
         fi
-        target_origin=$(printf "%s\n[cancel]" "$windows" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS $TMUX_FZF_PREVIEW_OPTIONS")
+        target_origin=$(printf "%s" "$windows" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS $TMUX_FZF_PREVIEW_OPTIONS")
     fi
     [[ "$target_origin" == "[cancel]" || -z "$target_origin" ]] && exit
     target=$(echo "$target_origin" | sed 's/: .*//')
