@@ -9,8 +9,8 @@ else
     sessions=$(tmux list-sessions -F "$TMUX_FZF_SESSION_FORMAT")
 fi
 
+current_session=$(tmux display-message -p | sed -e 's/^\[//' -e 's/\].*//')
 if [[ -z "$TMUX_FZF_SWITCH_CURRENT" ]]; then
-    current_session=$(tmux display-message -p | sed -e 's/^\[//' -e 's/\].*//')
     sessions=$(echo "$sessions" | grep -v "^$current_session: ")
 fi
 
@@ -34,7 +34,7 @@ if [[ "$action" != "detach" ]]; then
         target_origin=$(printf "[current]\n%s\n[cancel]" "$sessions" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS $TMUX_FZF_PREVIEW_OPTIONS")
         target_origin=$(echo "$target_origin" | sed -E "s/\[current\]/$current_session:/")
     fi
-    if [[ "$action" == "new" || "$action" == "rename" ]]; then
+    if [[ "$action" == "rename" ]]; then
         mkfifo /tmp/tmux_fzf_session_name
         tmux split-window -v -l 30% -b "bash -c 'printf \"Session Name: \" && read session_name && echo \"\$session_name\" > /tmp/tmux_fzf_session_name'" &
         session_name=$(cat /tmp/tmux_fzf_session_name)
@@ -42,10 +42,22 @@ if [[ "$action" != "detach" ]]; then
         if [ -z "$session_name" ]; then
             exit
         fi
-        if [[ "$action" == "new" ]]; then
-            tmux new-session -d -s "$session_name" && tmux switch-client -t "$session_name"
-            exit
+
+    fi
+    if [[ "$action" == "new" ]]; then
+        session_group_list=$(
+            tmux list-sessions -F "#{session_group}" |
+            sort |
+            uniq |
+            sed '/^$/d'
+        )
+        session_group=$(printf "[no group]\n%s" "$session_group_list" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
+        if [[ "$session_group" == "[no group]" ]]; then
+          tmux new-session -d -s "$session_name" && tmux switch-client -t "$session_name"
+        else
+          tmux new-session -d -s "$session_name" -t "$session_group" && tmux switch-client -t "$session_name"
         fi
+        exit
     fi
 else
     tmux_attached_sessions=$(tmux list-sessions | grep 'attached' | grep -o '^[[:alpha:][:digit:]_-]*:' | sed 's/.$//g')
